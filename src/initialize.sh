@@ -17,8 +17,33 @@ create_master_password() {
 
 }
 
+get_salt() {
+  
+  [[ $1 =~ ^\$6\$(.*)\$(.*)$ ]]
+  echo -n ${BASH_REMATCH[1]}
+  
+}
+
 check_master_password() {
-	echo "Checking master password..."
+	password_hash=$(cat data/.MASTER)
+	password_salt=$(get_salt $password_hash)
+
+	while true; do
+	
+	echo "Please enter your master password: "
+	read -s MASTER_PASSWORD
+	user_hash=$(openssl passwd -6 -salt $password_salt $MASTER_PASSWORD)
+
+	if [ $password_hash != $user_hash ]
+	then
+	 continue
+	else
+	 break
+	fi
+	done
+	
+	return 0
+
 }
 
 initialize() {
