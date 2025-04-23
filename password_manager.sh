@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source src/initialize.sh
+
 show_menu() {
 while true; do
 echo
@@ -58,6 +60,8 @@ echo
 done
 }
 main() {
+initialize
+
 while true; do
 	show_menu
 done

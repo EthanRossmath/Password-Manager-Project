@@ -17,6 +17,4 @@ initialize() {
 	fi
 }
 
-initialize
-
 
