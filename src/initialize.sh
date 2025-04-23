@@ -34,12 +34,13 @@ check_master_password() {
 	read -s MASTER_PASSWORD
 	user_hash=$(openssl passwd -6 -salt $password_salt $MASTER_PASSWORD)
 
-	if [ $password_hash != $user_hash ]
-	then
-	 continue
-	else
-	 break
-	fi
+	while [ $password_hash != $user_hash ]; do
+	echo "Incorrect. Please try again."
+	read -s MASTER_PASSWORD
+        user_hash=$(openssl passwd -6 -salt $password_salt $MASTER_PASSWORD)
+	done
+
+	break
 	done
 	
 	return 0
