@@ -1,0 +1,15 @@
+This is the documentation file.
+
+1. I ran the file as asked. I also created a subdirectory of data called "passwords" 
+
+2. 
+
+3.
+
+4.
+
+5.
+
+6.
+
+7.
