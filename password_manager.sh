@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source src/initialize.sh
+source src/passwords.sh
 
 show_menu() {
 while true; do
@@ -16,8 +17,7 @@ read -p "Choose an option (1 - 4)" option
 
 case $option in
 	1)
-	    echo
-	    echo "You have selected 'Add new password'. This is not yet implemented"
+	    new_password "$MASTER_PASSWORD"
 	    ;; 
         2) 
             echo
