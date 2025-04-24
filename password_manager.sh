@@ -20,8 +20,7 @@ case $option in
 	    new_password "$MASTER_PASSWORD"
 	    ;; 
         2) 
-            echo
-	    echo "You have selected 'Get password'. This is not yet implemented"
+            retrieve_password "$MASTER_PASSWORD"
 	    ;; 
         3) 
             echo
