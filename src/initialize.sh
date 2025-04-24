@@ -3,8 +3,8 @@
 # gets user to enter new master password and encrypts using openssl passwd
 create_master_password() {
 	while true; do
-	read -p "Enter master password: " MASTER_PASSWORD
-	read -p "Re-enter master password: " re_entered
+	read -p "Enter new master password: " MASTER_PASSWORD
+	read -p "Re-enter new master password: " re_entered
 
 		if [ $MASTER_PASSWORD != $re_entered ]
 		then
