@@ -1,15 +1,181 @@
 This is the documentation file.
 
-1. I ran the file as asked. I also created a subdirectory of data called "passwords" 
+1. Creating the Environment
 
-2. 
+I ran the file as asked. I also created a subdirectory of data called "passwords" 
 
-3.
+2. Creating the Menu System 
 
-4.
+I took the basic menu structure found in section 5.3 of "Crash Course in Bash Scripting",
+pasted it in password-manager.sh, then made modifications as necessary. In particular, I 
+replaced the names of the options with the options asked for by the exercise. The code
+looks as follows.
+ 
+$ echo # Adding an echo above and below for readability
+$ echo "Password Manager Menu"
+$ echo "1. Add new password"
+$ echo "2. Get password"
+$ echo "3. List accounts"
+$ echo "4. Exit"
+$ echo
 
-5.
+The empty echo commands above and below to make it more readable. The case part looks
+essentially the same, except I made a modification to option 4. Exit to allow users to 
+confirm that they would like to exit. In particular, I put a new while loop inside this
+case with its own case structure corresponding to the choices possible. The code for case 4
+looks as follows
 
-6.
+$ while true; do
+$
+$                echo
+$                read -p "Are you sure you wish to exit? (y/n)" exit_option
+$
+$                case $exit_option in  
+$                "y")
+$                        echo 
+$                        echo "Exiting..."
+$                        exit 0     
+$                        ;;
+$                "n") 
+$                        echo
+$                        echo "Returning back to menu"
+$                        break
+$                        ;;
+$                *) 
+$                        echo
+$                        echo "Please select a 'y' for yes and 'n' for no"
+$                        ;;
+$                esac
+$ done
+$ ;; 
 
-7.
+
+3. Master Password Creation
+
+	3.1 Create Initial Functions
+
+	I used an if statement to define initialize. In particular, I used the 
+	expression
+
+	$ if [ -e "data/.MASTER']
+	
+	at the beginning of the if statement to check. Not sure if I should have used
+	-f instead of -e, but it seems to work.
+
+
+
+	3.2 Modify your main script
+
+	I made the modifications the exercise asked me to make.
+
+	
+	3.3 Implement create_master_password 
+
+	I decided to use a while loop for this part. At the beginning of the loop
+	the user is prompted to enter a master password, which is then saved as a
+	variable $MASTER_PASSWORD and then is asked to re-enter the same password
+	with this string being saved as the variable $re_entered. An if statement is
+	then called which tests if these two strings agree. If not, then the user
+	is told the strings don't match and the loop begins again. If they do match,
+	then the loop ends. The while loop code has the following form
+
+	$ while true; do
+        $	read -p "Enter master password: " MASTER_PASSWORD
+        $	read -p "Re-enter master password: " re_entered
+	$
+        $        if [ $MASTER_PASSWORD != $re_entered ]
+        $        then
+        $                echo "Passwords do not match, please try again"
+        $        else
+        $                break
+        $        fi
+        $ done
+
+	I then did as the exercise asked to created a salted hash of the master password
+	and echo'd the result to data/.MASTER
+
+	$ echo $(openssl passwd -6 -salt $(openssl rand -base64 16) $MASTER_PASSWORD) > data/.MASTER
+
+
+
+4. Implementing Password Verification
+
+	4.1 Create Salt Extraction Helper 
+
+	For this part, I decided to use the second get_salt() function provided
+	by the exercise prompt. I used the first one on my first attempt, but I
+	kept getting errors. The second one worked, so I went with it.
+
+
+	4.2 Implement check_master_password
+
+	I first used the cat command to read the contents of data/.MASTER into a
+	local variable called $password_hash. I then used the get_salt() function
+	to extract the salt. The code looks as follows.
+
+        $ password_hash=$(cat data/.MASTER)
+        $ password_salt=$(get_salt $password_hash)
+
+	I then used a while loop which first asks the user to input their master
+	password using the -s command for security reasons. The output is saved
+	as a variable $MASTER_PASSWORD. This and $password_hash are then used
+	to produce a new hash variable $user_hash. The code looks as follows.
+
+	$ echo "Please enter your master password: "
+        $ read -s MASTER_PASSWORD # using -s to hide the input for security reasons
+        $ user_hash=$(openssl passwd -6 -salt $password_salt $MASTER_PASSWORD)
+
+	A new while loop is then started. As long as user_hash and password_hash
+	are not equal, it tells the user their entered response does not agree with
+	the stored master password, then asks the user to re-enter the master password
+	creating a new user_hash in exactly the same way as above. The code for this 
+	loop looks as follows.
+
+	$ while [ $password_hash != $user_hash ]; do
+        $	echo "Incorrect. Please try again."
+        $	read -s MASTER_PASSWORD
+        $	user_hash=$(openssl passwd -6 -salt $password_salt $MASTER_PASSWORD)
+       	$ done
+
+	I thought making this new loop would give the cleanest experience for the
+	user, making it clear that an error occured and allowing them to
+	immediately re-enter their password. As soon as the above while loop 
+	condition is false, the loop breaks and a 0 is returned.
+
+
+5. Adding Functionality to Create and Store Passwords
+
+	5.1 Password Generation
+
+	I did as the exercise asked. Although I will note a huge source of errors
+	later one was due to the fact that I missed the "24" when I initially did
+	this exercise.
+
+	5.2 Password Encryption
+
+	I did as the exercise asked, with 20000 iterations for no particular reason.
+	I echo'd the password to encrypt into the encryption command as was done in
+	section 9 of "Symmetric Encryption with OpenSSL in Kali Linux". The code
+	is as follows.
+
+	$ echo "$2" | openssl enc -aes-256-cbc -pbkdf2 -iter 20000 -a -pass "pass:$1" 
+
+
+	5.3 New Password Creation
+
+
+
+	5.4 Integrate with Main Script
+
+6. Password Retrieval
+
+        6.1 Password Decryption
+
+        6.2 Password Display
+
+        6.3 Password Retrieval
+
+        6.4 Integrate with Main Script
+
+
+7. Listing Accounts
