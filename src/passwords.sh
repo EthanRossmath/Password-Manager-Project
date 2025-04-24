@@ -77,11 +77,12 @@ retrieve_password() { #$1 = master password
 
         while true; do
         	read -p "Enter account name: " account_name
-        
+
         	if [ ! -f "data/passwords/${account_name}" ]
          	then
          		read -p "No account records. Press 'q' to quit and any other key to continue: " option
-         		case $option in
+
+			case $option in
                 	'q')
                 		return 0
                 		;;

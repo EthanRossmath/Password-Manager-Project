@@ -163,19 +163,166 @@ $ ;;
 
 	5.3 New Password Creation
 
+	To begin, this loop asks the user to input an account name, while also telling
+	them to press q if they would like to quit. The result is stored as the variable
+	account_name
+
+	$ read -p "Please enter an account name (or 'q' to quit): " account_name
+
+	At the next stage of the loop, an if statement is called to check if 
+	account_name is equal to 'q'. If so, then the user is informed they are 
+	returning to the main menu and break is called to end the loop. 
+
+	$ if [ $account_name == 'q' ]; then
+        $        echo "Returning to the main menu..."
+        $        break
+        $ fi
+
+	After this, another if statement is called which checks if a file called
+	account_name already exists. If the file exists, the the while loop is
+	restarted. I wanted to give the user the option to continue and overwrite
+	the old password, but I couldn't think of a clean way to do this. Perhaps
+	another case statement? The first part of the if statement looks like this
+
+	$ if [ -f data/passwords/${account_name} ]; then
+        $         echo "$account_name already has a password"
+        $         continue
+	
+	If the account doesn't exist, the user is prompted to confirm that
+	account_name is correct with a (y/n) option. A case statement is then called.
+	If y is selected, the function generate_password() is called to create a 
+	random string. The result is then encrypted using encrypt_password() and saved
+	to data/passwords/account_name. The loop then breaks.
+
+	$ 'y') 
+        $       echo "Username confirmed. Password being generated"
+        $       password=$(generate_password)
+        $       encrypt_password $1 $password > data/passwords/${account_name}
+        $       break
+        $       ;;
+
+	If n is selected, then the user is told to try again and the loop is restarted.
+	Similarly, if anything else is entered then the user is chastized 
+	appropriately and the loop begins again. I think there is probably a better
+	way to do this, but I thought it was getting too complicated with while
+	statements inside while statements.
+
+	$ 'n')
+        $        echo "Please try again"
+        $        echo 
+        $        continue
+        $        ;;
+	$
+        $ *)
+        $        echo "Please enter 'y' for 'Yes' or 'n' for 'No'"
+        $        continue
+        $        ;;
 
 
 	5.4 Integrate with Main Script
+
+	I did as the exercise asked.
 
 6. Password Retrieval
 
         6.1 Password Decryption
 
+	I did a very similar thing in this part as I did in Part 2 of Exercise 5.
+	I echo'd the ciphertext into the openssl enc -d with the same specifications
+	as in that exercise.
+
+	$ echo "$2" | openssl enc -d -aes-256-cbc -pbkdf2 -iter 20000  -a -pass "pass:$1"
+
+
         6.2 Password Display
+
+	For this, I used echo to print the plaintext password. After that I implemented
+	a prompt which reads "Press Enter after done viewing". Once the user hits
+	enter the clear command is called which clears the terminal. The follwoing are
+	the commands in the function.
+
+        $ echo "$1"
+        $ read -p "Press Enter after done viewing" option
+        $ clear
+
 
         6.3 Password Retrieval
 
+	THIS ONE CAUSED ME SO MANY PROBLEMS. I learned you need to put quotes around
+	everything otherwise it all breaks. Lesson learned.
+
+	Anyways, I first saved the input as a variable master_password as asked.
+	Form here, I implemented an if statement which checks if data/passwords
+	has any files contained in it using the ls command and using -z to check
+	if the string is empty. The start of the if statement looks as follows.
+
+        $ if [ -z "$(ls -A data/passwords)" ]
+
+	I included the -A because a stack exchange post told me to. I don't think it's
+	necessary in this case since there are no . or .. entries in passwords,
+	but better safe than sorry. The "" are needed here to make sure the output
+	is read as a string (my first big error!).
+
+
+	In the loop, first the user is asked to enter an account name with the input
+	saved as a local variable account_name. 
+
+	$ read -p "Enter account name: " account_name
+
+	An if statement then appears which checks if a file called account_name exists 
+	in passwords. If not, the user is then asked to enter 'q' to quit or hit any 
+	other key to continue. If 'q' is selected, 0 is returned. Otherwise, the loop
+	is continued.
+
+	$ read -p "No account records. Press 'q' to quit and any other key to continue: " option
+	$
+        $ case $option in
+        $ 'q')
+        $       return 0
+        $       ;;
+	$
+        $ *)
+        $       ;;
+        $ esac
+	
+	If the account does exist, the loop breaks. From here, the contents of 
+	data/passwords/account_name are read into a variable called $encrypted_password
+	using the cat command. The function decrypt_password() is then called to 
+	decrypt the encrypted password and saves the result as a variable called
+	$plaintext_password. The function display_password() is then called to 
+	print the result.
+
+        $ encrypted_password=$(cat "data/passwords/${account_name}")
+        $ plaintext_password=$(decrypt_password "$master_password" "$encrypted_password")
+        $ display_password "$plaintext_password"
+
+
         6.4 Integrate with Main Script
+
+	I did as the exercise asked.
 
 
 7. Listing Accounts
+
+This uses a very similar idea to Part 3 of Exercise 5. An if statement is called
+which checks if data/passwords has any contents. In particular, the command
+"ls data/passwords" prints the contents of this directory as a string and -z is
+used to check if this is the empty string or not. 
+
+$ if [ -z "$(ls -A data/passwords)" ]
+
+If the string is indeed empty, the user is told that no account records exist and a
+1 is returned. Otherwise, the command ls -1 data/passwords is called as asked. Here is 
+the full if statement.
+
+$ if [ -z "$(ls -A data/passwords)" ] # checks if any accounts are listed in data/passwords
+$ then
+$	echo
+$	echo "No accounts recorded"
+$	
+$	return 1
+$ else
+$	echo
+$	ls -1 data/passwords # prints the names of the accounts in a vertical stack
+$ fi
+
