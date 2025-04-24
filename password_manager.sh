@@ -2,6 +2,7 @@
 
 source src/initialize.sh
 source src/passwords.sh
+source src/utils.sh
 
 show_menu() {
 while true; do
@@ -23,8 +24,7 @@ case $option in
             retrieve_password "$MASTER_PASSWORD"
 	    ;; 
         3) 
-            echo
-	    echo "You have selected 'List accounts'. This is not yet implemented"
+            list_accounts
 	    ;;
         4) 
 	    while true; do
