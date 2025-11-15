@@ -1,4 +1,5 @@
-This is the README for password-manager
+This is the README for the Linux Password Manager project, part of the Field's
+Institute's Quantitative Information Security Program.
 
 #-#-# IMPORTANT NOTES #-#-#
 	- To use password-manager your active directory must be password-manager.
